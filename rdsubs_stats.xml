@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="1.6" method="upgrade">
+	<name>COM_RDSUBS_STATS</name>
+	<description>COM_RDSUBS_STATS_DESC</description>
+	<version>1.0.0</version>
+	<creationDate>April 2016</creationDate>
+	<author>Regular Labs (Peter van Westen)</author>
+	<authorEmail>info@regularlabs.com</authorEmail>
+	<authorUrl>https://www.regularlabs.com</authorUrl>
+	<copyright>Copyright © 2016 Regular Labs - All Rights Reserved</copyright>
+	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+	<administration>
+		<menu>COM_RDSUBS_STATS</menu>
+
+		<languages folder="languages">
+			<language tag="en-GB">en-GB/en-GB.com_rdsubs_stats.ini</language>
+			<language tag="en-GB">en-GB/en-GB.com_rdsubs_stats.sys.ini</language>
+		</languages>
+	</administration>
+</extension>
