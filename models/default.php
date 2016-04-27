@@ -627,11 +627,9 @@ class RDSubs_StatsModelDefault extends JModelList
 		JFactory::getDocument()->setTitle($title);
 		JToolBarHelper::title($title);
 
-		return;
-
 		$bar = JToolBar::getInstance('toolbar');
 
-		$bar->appendButton(
+		/*$bar->appendButton(
 			'custom',
 			'<a href="index.php?option=com_rdsubs_stats" class="btn btn-default">'
 			. '<span class="icon-dashboard"></span> '
@@ -645,13 +643,13 @@ class RDSubs_StatsModelDefault extends JModelList
 			. JText::_('COM_RDSUBS_STATS_SUBMENU_SALES')
 			. '</a>'
 		);
-		/*$bar->appendButton(
+		$bar->appendButton(
 			'custom',
 			'<a href="index.php?option=com_rdsubs_stats&view=renewals" class="btn btn-default">'
 			. '<span class="icon-refresh"></span> '
 			. JText::_('COM_RDSUBS_STATS_SUBMENU_RENEWALS')
 			. '</a>'
-		);*/
+		);
 		$bar->appendButton(
 			'custom',
 			'<a href="index.php?option=com_rdsubs_stats&view=products" class="btn btn-default">'
@@ -665,7 +663,7 @@ class RDSubs_StatsModelDefault extends JModelList
 			. '<span class="icon-location"></span> '
 			. JText::_('COM_RDSUBS_STATS_SUBMENU_COUNTRIES')
 			. '</a>'
-		);
+		);*/
 		$bar->appendButton(
 			'custom',
 			'<a href="index.php?option=com_rdsubs" class="btn btn-default">'
