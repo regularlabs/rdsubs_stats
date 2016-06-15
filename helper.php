@@ -91,6 +91,30 @@ function getSalesTable($sales)
 			. $row->user_name
 			. '</a>'
 			. '</td>';
+		$html[] = '<td style="white-space: nowrap;" class="text-right">';
+		if ($row->discount)
+		{
+			switch (true)
+			{
+				case ($row->discount_group == 'coupon' && $row->coupon_name):
+					$class = 'info';
+					$tip   = $row->coupon_name . '<br>Coupon: ' . $row->coupon_code;
+					break;
+				case ($row->discount_group == 'upgrade'):
+					$class = 'success';
+					$tip   = 'Upgrade';
+					break;
+				case ($row->discount_group == 'renewal'):
+				default:
+					$class = 'default';
+					$tip   = 'Renewal';
+					break;
+			}
+			$html[] = '<small class="hasTooltip label label-' . $class . '" title="' . $tip . '">- '
+				. round($row->discount / ($row->price + $row->discount) * 100)
+				. '%</span>';
+		}
+		$html[] = '</td>';
 		$html[] = '<td style="white-space: nowrap;" class="text-right">€ ' . round($row->price) . '</td>';
 		$html[] = '<td>';
 		foreach ($row->orders as $order_id => $product)

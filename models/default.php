@@ -20,6 +20,30 @@ class RDSubs_StatsModelDefault extends JModelList
 	var $countries          = null;
 	var $levels             = null;
 	var $db_data            = array();
+	var $time_offset        = null;
+
+	public function __construct($config = array())
+	{
+		$this->time_offset = $this->getTimeOffset();
+
+		parent::__construct($config);
+	}
+
+	public function getTimeOffset()
+	{
+		$config = JFactory::getConfig();
+		$user   = JFactory::getUser();
+
+		$date_server    = new JDate(date('Y-m-d H:i:s'));
+		$date_server->setTimezone(new DateTimeZone($user->getParam('timezone', $config->get('offset'))));
+
+		$date_now    = new JDate(date('Y-m-d H:i:s'));
+
+		$diff = strtotime((string) $date_server) - strtotime((string) $date_now);
+		$diff = $diff / 60 / 60;
+
+		return $diff . ' HOUR';
+	}
 
 	public function getData()
 	{
@@ -119,15 +143,15 @@ class RDSubs_StatsModelDefault extends JModelList
 
 		$query = $db->getQuery(true)
 			->select(array(
-				'DATE_FORMAT(i.invoicedate, ' . $db->quote($group_format) . ') as grouping',
-				'DATE_FORMAT(i.invoicedate, ' . $db->quote($date_format) . ') as date',
+				'DATE_FORMAT(DATE_ADD(i.invoicedate, INTERVAL ' . $this->time_offset . '), ' . $db->quote($group_format) . ') as grouping',
+				'DATE_FORMAT(DATE_ADD(i.invoicedate, INTERVAL ' . $this->time_offset . '), ' . $db->quote($date_format) . ') as date',
 				'COUNT(i.id) as count',
 				'ROUND(SUM(i.net_price) - SUM(i.vat_amount), 2) * 1 as value',
 			))
 			->from($db->quoteName('#__rd_subs_invoices', 'i'))
 			->where(array(
-				'i.invoicedate > ' . $db->quote($from),
-				'i.invoicedate < ' . $db->quote($to),
+				'DATE_ADD(i.invoicedate, INTERVAL ' . $this->time_offset . ') > ' . $db->quote($from),
+				'DATE_ADD(i.invoicedate, INTERVAL ' . $this->time_offset . ') < ' . $db->quote($to),
 				'i.paid = 1',
 				'i.net_price > 0',
 				'i.refund_invoice = 0',
@@ -525,18 +549,25 @@ class RDSubs_StatsModelDefault extends JModelList
 			->select(array(
 				'i.id as invoice_id',
 				'i.ordercode',
-				'i.invoicedate as date',
-				'i.net_price - i.vat_amount as price',
+				'DATE_ADD(i.invoicedate, INTERVAL ' . $this->time_offset . ') as date',
+				'i.disco_price as discount',
+				'i.gross_price - i.disco_price as price',
+				'o.discount_group',
+				'o.coupon_code',
+				'x.name as coupon_name',
 				'u.id as user_id',
 				'CONCAT(u.firstname, " ", u.lastname) as user_name',
 				'c.country as country_name',
 				'c.country_2_code as country_id',
 			))
 			->from($db->quoteName('#__rd_subs_invoices', 'i'))
+			->join('LEFT', $db->quoteName('#__rd_subs_orders', 'o') . ' ON o.ordercode = i.ordercode AND o.discount_group != ' . $db->quote(''))
+			->join('LEFT', $db->quoteName('#__rd_subs_coupons', 'x') . ' ON x.coupon_code = o.coupon_code AND x.type = 0')
 			->join('LEFT', $db->quoteName('#__rd_subs_users', 'u') . ' ON u.userid = i.userid')
 			->join('LEFT', $db->quoteName('#__rd_subs_countries', 'c') . ' ON c.id = u.country')
 			->where('i.id IN (' . implode(',', $invoice_ids) . ')')
-			->order('i.invoicedate DESC');
+			->order('i.invoicedate DESC')
+			->group('i.id');
 		$db->setQuery($query);
 
 		$invoices = $db->loadObjectList();
